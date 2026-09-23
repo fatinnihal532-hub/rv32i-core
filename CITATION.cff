@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "rv32i-core: A Verified Single-Cycle RV32I RISC-V Core"
+authors:
+  - family-names: "Islam"
+    given-names: "Fatin Nihal"
+    affiliation: "Khulna University of Engineering & Technology (KUET)"
+date-released: 2026-09-22
+license: MIT
+repository-code: "https://github.com/fatinnihal532-hub/rv32i-core"
+keywords:
+  - RISC-V
+  - RV32I
+  - digital design
+  - RTL
+  - Verilog
+  - logic synthesis
+  - Yosys
+  - VLSI
+references:
+  - type: standard
+    title: "The RISC-V Instruction Set Manual, Volume I: Unprivileged ISA"
+    authors:
+      - name: "RISC-V International"
+    version: "20240411"
+    year: 2024

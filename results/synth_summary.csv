@@ -1,0 +1,6 @@
+module,combinational_cells,flops,total_cells
+alu,1514,0,1514
+control,93,0,93
+imm_gen,234,0,234
+regfile,2077,992,3069
+TOTAL,3918,992,4910

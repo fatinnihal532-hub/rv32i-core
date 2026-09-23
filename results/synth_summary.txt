@@ -1,0 +1,9 @@
+Technology-independent gate count (generic AND/OR/XOR/NAND/NOR/XNOR/MUX + DFF)
+Excludes the two `mem` instances -- see docs/methodology.md.
+======================================================================
+alu         combinational= 1514  flops=   0
+control     combinational=   93  flops=   0
+imm_gen     combinational=  234  flops=   0
+regfile     combinational= 2077  flops= 992
+----------------------------------------------------------------------
+TOTAL       combinational= 3918  flops= 992
