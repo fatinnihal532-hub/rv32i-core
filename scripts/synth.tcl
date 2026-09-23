@@ -13,7 +13,7 @@
 # number -- see docs/methodology.md for why, and what a real PDK flow
 # would add.
 read_verilog src/alu.v src/regfile.v src/imm_gen.v src/control.v
-synth -top alu; tee -a results/synth_stat.txt stat
+synth -top alu; tee -o results/synth_stat.txt stat
 design -reset
 
 read_verilog src/alu.v src/regfile.v src/imm_gen.v src/control.v
