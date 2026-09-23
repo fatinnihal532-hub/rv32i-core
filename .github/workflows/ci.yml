@@ -1,1 +1,76 @@
+name: CI
 
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Icarus Verilog, Yosys and Verilator
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq iverilog yosys verilator
+      - run: pip install -r requirements.txt
+      - name: Run RTL unit + program tests (Icarus Verilog)
+        run: python3 -m unittest discover -s tests -v
+      - name: Lint every module with Verilator (no simulation)
+        run: verilator --lint-only -Wall src/*.v
+      - name: Run technology-independent synthesis (Yosys)
+        run: |
+          mkdir -p results
+          yosys -q -s scripts/synth.tcl
+          python3 scripts/report_synth.py
+      - name: Check the core against hand-computed and modelled results
+        run: python3 verify.py
+      - name: Regenerate all figures
+        run: python3 scripts/make_figures.py
+
+  # Every figure, netlist stat and CSV in results/ is produced here, by the
+  # code at this commit, and committed back by the workflow -- none is
+  # uploaded by hand. (Pushes made with GITHUB_TOKEN do not trigger another
+  # workflow run.)
+  publish-results:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Icarus Verilog, Yosys and Verilator
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq iverilog yosys verilator
+      - run: pip install -r requirements.txt
+      - run: |
+          mkdir -p results
+          yosys -q -s scripts/synth.tcl
+          python3 scripts/report_synth.py
+          python3 scripts/make_figures.py
+      - name: Commit regenerated results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/
+          if git diff --cached --quiet; then
+            echo "results/ already up to date"
+          else
+            git commit -m "Regenerate results/ from ${GITHUB_SHA::7}"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
